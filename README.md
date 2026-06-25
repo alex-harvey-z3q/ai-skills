@@ -1,6 +1,6 @@
 # AI Skills
 
-Local project for custom Copilot skills.
+Local project for AI Agent skills.
 
 ## Structure
 
