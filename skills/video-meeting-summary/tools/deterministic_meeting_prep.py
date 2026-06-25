@@ -60,6 +60,7 @@ class Turn:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments for deterministic meeting pre-processing."""
     parser = argparse.ArgumentParser(description="Deterministic meeting preprocessor")
     parser.add_argument("--video", required=True, help="Path to video file")
     parser.add_argument("--transcript", required=True, help="Path to transcript file")
@@ -86,6 +87,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_cmd(cmd: List[str]) -> str:
+    """Run a shell command and return stdout, raising on failure."""
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if proc.returncode != 0:
         raise RuntimeError(
@@ -100,6 +102,7 @@ def run_cmd(cmd: List[str]) -> str:
 
 
 def ffprobe_duration(video_path: Path) -> float:
+    """Return video duration in seconds via ffprobe."""
     out = run_cmd(
         [
             "ffprobe",
@@ -116,6 +119,7 @@ def ffprobe_duration(video_path: Path) -> float:
 
 
 def extract_frames(video_path: Path, frames_dir: Path, interval_sec: float) -> int:
+    """Extract PNG frames at a fixed interval and return frame count."""
     frames_dir.mkdir(parents=True, exist_ok=True)
     out_pattern = str(frames_dir / "frame_%06d.png")
     fps_filter = f"fps=1/{interval_sec:g}"
@@ -139,6 +143,7 @@ def extract_frames(video_path: Path, frames_dir: Path, interval_sec: float) -> i
 
 
 def read_docx_text(path: Path) -> List[str]:
+    """Read non-empty paragraph text lines from a .docx transcript."""
     lines: List[str] = []
     with zipfile.ZipFile(path, "r") as zf:
         xml_content = zf.read("word/document.xml")
@@ -153,6 +158,7 @@ def read_docx_text(path: Path) -> List[str]:
 
 
 def read_vtt_text(path: Path) -> List[str]:
+    """Read spoken lines from a .vtt transcript, skipping cue metadata."""
     lines: List[str] = []
     for raw in path.read_text(encoding="utf-8", errors="ignore").splitlines():
         line = raw.strip()
@@ -169,6 +175,7 @@ def read_vtt_text(path: Path) -> List[str]:
 
 
 def read_transcript_lines(path: Path) -> List[str]:
+    """Load transcript lines from supported file formats."""
     suffix = path.suffix.lower()
     if suffix == ".docx":
         return read_docx_text(path)
@@ -184,6 +191,7 @@ def read_transcript_lines(path: Path) -> List[str]:
 
 
 def parse_timestamp(value: str) -> int:
+    """Convert MM:SS or HH:MM:SS text to total seconds."""
     parts = [int(p) for p in value.split(":")]
     if len(parts) == 2:
         minutes, seconds = parts
@@ -195,6 +203,7 @@ def parse_timestamp(value: str) -> int:
 
 
 def looks_like_metadata(line: str) -> bool:
+    """Heuristically detect transcript metadata lines to skip."""
     lower = line.lower()
     prefixes = (
         "meeting in",
@@ -211,6 +220,7 @@ def looks_like_metadata(line: str) -> bool:
 
 
 def parse_turns(lines: Iterable[str]) -> List[Turn]:
+    """Parse transcript lines into structured speaker turns."""
     turns: List[Turn] = []
 
     for raw in lines:
@@ -241,6 +251,7 @@ def parse_turns(lines: Iterable[str]) -> List[Turn]:
 
 
 def assign_frames(turns: List[Turn], interval_sec: float, frame_count: int) -> None:
+    """Assign each turn to its nearest extracted frame index."""
     max_idx = max(frame_count, 1)
     for turn in turns:
         frame_index = int(math.floor(turn.time_sec / interval_sec)) + 1
@@ -250,10 +261,12 @@ def assign_frames(turns: List[Turn], interval_sec: float, frame_count: int) -> N
 
 
 def tokenize(text: str) -> List[str]:
+    """Tokenise text into lower-cased keywords with stopword filtering."""
     return [t for t in re.findall(r"[A-Za-z][A-Za-z0-9_-]{2,}", text.lower()) if t not in STOPWORDS]
 
 
 def sec_to_hhmmss(sec: int) -> str:
+    """Format seconds as HH:MM:SS."""
     h = sec // 3600
     m = (sec % 3600) // 60
     s = sec % 60
@@ -261,6 +274,7 @@ def sec_to_hhmmss(sec: int) -> str:
 
 
 def build_keywords(turns: List[Turn], max_keywords: int) -> List[tuple[str, int]]:
+    """Compute most frequent keywords across all turns."""
     counter: Counter[str] = Counter()
     for t in turns:
         counter.update(tokenize(t.text))
@@ -268,6 +282,7 @@ def build_keywords(turns: List[Turn], max_keywords: int) -> List[tuple[str, int]
 
 
 def build_timeline(turns: List[Turn], bucket_sec: int, max_keywords: int) -> list[dict]:
+    """Group turns into time buckets with summary metadata."""
     grouped: dict[int, List[Turn]] = defaultdict(list)
     for t in turns:
         grouped[t.time_sec // bucket_sec].append(t)
@@ -299,6 +314,7 @@ def build_timeline(turns: List[Turn], bucket_sec: int, max_keywords: int) -> lis
 
 
 def extract_action_items(turns: List[Turn]) -> List[Turn]:
+    """Return turns that match action-oriented heuristic patterns."""
     out: List[Turn] = []
     for t in turns:
         if any(p.search(t.text) for p in ACTION_PATTERNS):
@@ -307,6 +323,7 @@ def extract_action_items(turns: List[Turn]) -> List[Turn]:
 
 
 def write_alignment_csv(path: Path, turns: List[Turn]) -> None:
+    """Write turn-to-frame alignment data to CSV."""
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["turn_index", "speaker", "time_label", "time_sec", "frame_index", "frame_file", "text"])
@@ -315,6 +332,7 @@ def write_alignment_csv(path: Path, turns: List[Turn]) -> None:
 
 
 def write_json(path: Path, payload: dict) -> None:
+    """Write a dictionary payload as pretty-printed JSON."""
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
 
 
@@ -330,6 +348,7 @@ def write_summary_markdown(
     keywords: list[tuple[str, int]],
     action_items: List[Turn],
 ) -> None:
+    """Write a deterministic Markdown summary draft from computed artefacts."""
     speaker_counts = Counter(t.speaker for t in turns)
     speaker_words = Counter()
     for t in turns:
@@ -393,6 +412,7 @@ def write_summary_markdown(
 
 
 def main() -> int:
+    """Run deterministic pre-processing and write all output files."""
     args = parse_args()
 
     video_path = Path(args.video).expanduser().resolve()

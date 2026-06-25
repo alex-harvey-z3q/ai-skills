@@ -5,7 +5,7 @@ description: Split a meeting video into frames with ffmpeg, align transcript tur
 
 # Video Meeting Summary Skill
 
-Use this skill when the user provides a meeting video and transcript and wants an organized Markdown summary.
+Use this skill when the user provides a meeting video and transcript and wants an organised Markdown summary.
 
 ## Deterministic First Pass
 
@@ -24,11 +24,13 @@ Run:
 
 ```bash
 python3 "$HOME/Library/Application Support/Code/User/prompts/skills/video-meeting-summary/tools/deterministic_meeting_prep.py" \
-  --video "/absolute/path/to/meeting.mp4" \
-  --transcript "/absolute/path/to/transcript.docx" \
-  --output-dir "/absolute/path/to/output" \
+  --video "./meeting.mp4" \
+  --transcript "./transcript.docx" \
+  --output-dir "./output" \
   --frame-interval-sec 5
 ```
+
+Paths can be relative or absolute.
 
 ## Synthesis Step
 
@@ -47,4 +49,4 @@ After the deterministic pass:
 
 - Prefer a frame interval between 3 and 10 seconds for long calls.
 - If transcript quality is poor, keep deterministic outputs and explicitly mark uncertain statements.
-- Do not skip deterministic preprocessing; it reduces hallucinations and improves consistency.
+- Do not skip deterministic pre-processing; it reduces hallucinations and improves consistency.
