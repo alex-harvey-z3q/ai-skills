@@ -9,8 +9,3 @@ Local project for custom Copilot skills.
 ## Current Skills
 
 - `video-meeting-summary`
-
-## Notes
-
-This project was initialized from an existing skill copied from:
-`~/Library/Application Support/Code/User/prompts/skills/video-meeting-summary`
