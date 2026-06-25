@@ -23,7 +23,8 @@ Always run the deterministic preprocessor first. It performs these steps:
 Run:
 
 ```bash
-python3 "$HOME/Library/Application Support/Code/User/prompts/skills/video-meeting-summary/tools/deterministic_meeting_prep.py" \
+cd /path/to/video-meeting-summary
+python3 tools/deterministic_meeting_prep.py \
   --video "./meeting.mp4" \
   --transcript "./transcript.docx" \
   --output-dir "./output" \
