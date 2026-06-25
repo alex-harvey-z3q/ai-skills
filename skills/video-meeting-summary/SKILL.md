@@ -46,6 +46,18 @@ After the deterministic pass:
 - Chronological timeline
 - Technical notes
 
+## Visual Evidence
+
+When screenshots help the reader understand the material:
+- Use only frames that directly support the nearby explanation.
+- Crop screenshots to the relevant shared-screen area before embedding them.
+- Exclude participant faces, private chat, notification popups, and unrelated UI.
+- Place each screenshot in context near the concept it explains instead of collecting all images at the top.
+- Add a short caption that explains what the reader should notice in the image.
+- Prefer descriptive image filenames such as `terraform-plan-tag-update.png` over raw frame names.
+
+If preparing a portable Markdown package, copy the cropped images beside the Markdown file and use relative image paths.
+
 ## Notes
 
 - Prefer a frame interval between 3 and 10 seconds for long calls.
