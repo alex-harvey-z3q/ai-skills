@@ -91,21 +91,21 @@ get_opts() {
   local opt OPTARG OPTIND
 
   while getopts ":n:h" opt; do
-    case "${opt}" in
+    case "$opt" in
       n)
-        name="${OPTARG}"
+        name="$OPTARG"
         ;;
       h)
         usage
         exit 0
         ;;
       :)
-        echo "Option -${OPTARG} requires an argument" >&2
+        echo "Option -$OPTARG requires an argument" >&2
         usage >&2
         exit 1
         ;;
       \?)
-        echo "Unknown option: -${OPTARG}" >&2
+        echo "Unknown option: -$OPTARG" >&2
         usage >&2
         exit 1
         ;;
@@ -122,7 +122,7 @@ validate_opts() {
 }
 
 do_work() {
-  printf 'Processing %s\n' "${name}"
+  printf 'Processing %s\n' "$name"
 }
 
 main() {
