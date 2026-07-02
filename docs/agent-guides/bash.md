@@ -46,6 +46,19 @@ Quote variable expansions.
 Prefer `$var` notation over `${var}` for simple variable expansion. Use braces only when
 they are needed for disambiguation, parameter expansion, or readability.
 
+For path concatenation where a variable is followed by a literal path segment,
+prefer this form:
+
+```bash
+target_kernel="$boot_dir"/vmlinuz
+```
+
+instead of:
+
+```bash
+target_kernel="$boot_dir/vmlinuz"
+```
+
 Line up related assignments or repeated command arguments when the alignment makes the
 code easier to scan. Do not force alignment where it makes the code noisier.
 
@@ -156,6 +169,37 @@ and from `main` to `get_opts`:
 
 ```bash
 get_opts "$@"
+```
+
+In `get_opts` case arms, keep indentation of command blocks aligned
+on the closing parenthesis. Prefer:
+
+```bash
+      :)
+        echo "Option -$OPTARG requires an argument" >&2
+        usage >&2
+        exit 1
+        ;;
+     \?)
+        echo "Unknown option: -$OPTARG" >&2
+        usage >&2
+        exit 1
+        ;;
+```
+
+rather than uneven indentation such as:
+
+```bash
+      :)
+        echo "Option -$OPTARG requires an argument" >&2
+        usage >&2
+        exit 1
+        ;;
+      \?)
+        echo "Unknown option: -$OPTARG" >&2
+        usage >&2
+        exit 1
+        ;;
 ```
 
 ## Guard clause
