@@ -41,6 +41,8 @@ Use descriptive function names. Optimise for experienced developers who may not 
 
 It is acceptable to use globals for script-level state when that keeps the script simple and readable. Use `local` for function-local variables.
 
+Use lowercase for all script-level variables, including infrastructure variables such as `script_dir`, `project_root`, and path-building variables. Reserve uppercase only for environment variables intended to be exported or consumed by child processes (e.g. `PATH`, `HOME`).
+
 Quote variable expansions.
 
 Prefer `$var` notation over `${var}` for simple variable expansion. Use braces only when
@@ -197,6 +199,25 @@ rather than uneven indentation such as:
         ;;
       \?)
         echo "Unknown option: -$OPTARG" >&2
+        usage >&2
+        exit 1
+        ;;
+```
+
+For simple single-assignment arms, prefer the compact inline form:
+
+```bash
+      i) iso_path="$OPTARG" ;;
+      b) boot_dir="$OPTARG" ;;
+      h) usage; exit 0 ;;
+```
+
+Only expand to multiple lines when there are several statements in the arm
+that make the extra lines worthwhile:
+
+```bash
+      :)
+        echo "Option -$OPTARG requires an argument" >&2
         usage >&2
         exit 1
         ;;
