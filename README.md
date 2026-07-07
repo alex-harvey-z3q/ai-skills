@@ -9,3 +9,4 @@ Local project for AI Agent skills.
 ## Current Skills
 
 - `video-meeting-summary`
+- `bitbucket-pr-review`
