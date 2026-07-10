@@ -17,8 +17,8 @@ Use this skill when the user wants a structured code review for a Bitbucket PR a
 
 Collect these values before running tools:
 - Bitbucket base URL (example: `https://bitbucket.example.com`)
-- Project key (example: `INFRA`)
-- Repository slug (example: `proxmox`)
+- Project key (example: `KEY`)
+- Repository slug (example: `widget`)
 - PR ID (example: `1`)
 
 ## 1) Fetch PR Snapshot (Read-Only)
@@ -29,8 +29,8 @@ Always start by fetching a local snapshot of the PR data and patch.
 cd /path/to/ai-skills/skills/bitbucket-pr-review
 python3 tools/bitbucket_pr_review.py \
   --base-url "https://bitbucket.example.com" \
-  --project "INFRA" \
-  --repo "proxmox" \
+  --project "KEY" \
+  --repo "widget" \
   --pr-id 1 \
   snapshot \
   --out-dir "./output/pr-1"
@@ -73,8 +73,8 @@ Only run this when the user explicitly asks to post.
 cd /path/to/ai-skills/skills/bitbucket-pr-review
 python3 tools/bitbucket_pr_review.py \
   --base-url "https://bitbucket.example.com" \
-  --project "INFRA" \
-  --repo "proxmox" \
+  --project "KEY" \
+  --repo "widget" \
   --pr-id 1 \
   comment \
   --body-file "./inputs/review-comment-template.md"
@@ -88,17 +88,17 @@ Use inline comments for file/line-specific findings.
 cd /path/to/ai-skills/skills/bitbucket-pr-review
 python3 tools/bitbucket_pr_review.py \
   --base-url "https://bitbucket.example.com" \
-  --project "INFRA" \
-  --repo "proxmox" \
+  --project "KEY" \
+  --repo "widget" \
   --pr-id 1 \
   inline \
-  --path "foreman/scripts/proxmox-auto.sh" \
+  --path "scripts/widget-stuff.sh" \
   --line 120 \
   --line-type "ADDED" \
   --text "Potential null handling regression here when payload is empty."
 ```
 
-## Safety and Behavior
+## Safety and Behaviour
 
 - Default to read-only snapshot first.
 - Never request secrets in chat; token must already exist in environment.
